@@ -21,7 +21,7 @@ WORKDIR /app
 
 COPY . .
 RUN poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-ansi
+    poetry install --only main --no-interaction --no-ansi
 
 EXPOSE 8000
 ENTRYPOINT [ "bash", "entrypoint.sh" ]
