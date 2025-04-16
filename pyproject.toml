@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "bday-service"
+version = "0.1.0"
+description = ""
+authors = ["Stepan Shishkin <me@tcp22.sh>"]
+readme = "README.md"
+
+packages = [
+    {include = "bday-service"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.11.3"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
