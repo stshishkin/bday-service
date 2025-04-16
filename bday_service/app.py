@@ -76,3 +76,17 @@ async def get_hello(username: str = Path(..., pattern=USERNAME_REGEX)):
         return {
             "message": f"Hello, {username}! Your birthday is in {delta} day(s)"
         }
+
+@app.get("/health")
+async def liveness_probe():
+    return {"status": "alive"}
+
+@app.get("/ready")
+async def readiness_probe():
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database is not ready")
+
+    return {"status": "ready"}

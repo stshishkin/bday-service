@@ -1,0 +1,37 @@
+{{- if .Values.ingress.enabled }}
+{{- $alb := eq .Values.ingress.controller "alb" }}
+apiVersion: {{ include "apiVersion.ingress" . }}
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace | default "default" }}
+  labels:
+    app: {{ .Release.Name }}
+  annotations:
+{{- if $alb }}
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "{{ .Values.ingress.alb.scheme }}"
+    alb.ingress.kubernetes.io/target-type: "ip"
+{{- else }}
+    kubernetes.io/ingress.class: "{{ .Values.ingress.nginx.className }}"
+{{- end }}
+spec:
+  ingressClassName: {{ ternary "alb" .Values.ingress.nginx.className $alb }}
+  rules:
+    - host: {{ .Values.ingress.hostname }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- if and .Values.ingress.tls.enabled (not $alb) }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hostname }}
+      secretName: "{{ .Release.Name }}-tls"
+{{- end }}
+{{- end }}
