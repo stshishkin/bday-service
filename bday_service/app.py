@@ -14,7 +14,7 @@ class UserBirthdate(BaseModel):
 
 @app.put("/hello/{username}", status_code=204)
 def put_user_birthdate(
-    username: str = Path(..., regex=USERNAME_REGEX),
+    username: str = Path(..., pattern=USERNAME_REGEX),
     data: UserBirthdate = None
 ):
     if data.dateOfBirth >= date.today():
@@ -25,17 +25,20 @@ def put_user_birthdate(
     return  # 204 No Content
 
 @app.get("/hello/{username}")
-def get_hello(username: str = Path(..., regex=USERNAME_REGEX)):
+def get_hello(username: str = Path(..., pattern=USERNAME_REGEX)):
     if username not in user_db:
         raise HTTPException(status_code=404, detail="User not found")
 
     dob = user_db[username]
     today = date.today()
 
-    birthday_this_year = dob.replace(year=today.year)
+    try:
+        birthday_this_year = dob.replace(year=today.year)
+    except ValueError:
+        birthday_this_year = dob.replace(year=today.year, month=3, day=1)
 
     if birthday_this_year < today:
-        birthday_this_year = dob.replace(year=today.year + 1)
+        birthday_this_year = birthday_this_year.replace(year=today.year + 1)
 
     delta = (birthday_this_year - today).days
 
