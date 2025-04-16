@@ -11,11 +11,18 @@ service:
 
 ingress:
   enabled: true
-  hostname: "bday.example.com"
-  className: "nginx"
-  path: "/"
+
+  controller: nginx
+  hostname:  bday.test.local
+  path: /
   tls:
-    enabled: true
+    enabled: false
+
+  nginx:
+    className: nginx
+
+  alb:
+    scheme: internet-facing
 
 hpa:
   enabled: true
