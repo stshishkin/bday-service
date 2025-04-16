@@ -1,7 +1,25 @@
+import os
 import pytest
+import asyncio
 from datetime import date
 from fastapi.testclient import TestClient
-from bday_service.app import app
+
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./test.db"
+
+from bday_service.app import app, Base, engine
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_db():
+    async def init_tables():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+    asyncio.run(init_tables())
+
+    yield
+
+    if os.path.exists("test.db"):
+        os.remove("test.db")
 
 client = TestClient(app)
 
